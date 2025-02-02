@@ -24,11 +24,9 @@ public class KafkaStreamsConfig {
 
     @Bean
     public KStream<String, String> kafkaStream(StreamsBuilder streamsBuilder, Map<String, Integer> map) {
-        // Define the input and output topics
         String inputTopic = "words";
         String outputTopic = "counts";
 
-        // Create a KStream from the input topic
         KStream<String, String> stream = streamsBuilder.stream(inputTopic, Consumed.with(Serdes.String(), Serdes.String()));
 
         stream.process(() -> (Processor<String, String, Void, Void>) record -> record.headers().forEach(header -> {
@@ -36,7 +34,6 @@ public class KafkaStreamsConfig {
         }));
 
         stream.mapValues(value -> {
-            // Increment the value of the key in the map
             map.put(value, map.getOrDefault(value, 0) + 1);
             return value + " -> " + map.get(value);
         }).to(outputTopic);
